@@ -3,16 +3,20 @@ import re
 class User:
     def __init__(self, name, email, age, status="Standard"):
         self.name = name
-        self.age = age if age >= 13 else "Invalid"
-        self.email = email if self._validate_email(email) else "Invalid"
+        self.age = age if self._is_age_valid(age) else "Invalid"
+        self.email = email if self._is_email_valid(email) else "Invalid"
         self.status = status
         self.saving_goals = []
 
-    def _validate_email(self, email):
+    def _is_age_valid(self, age):
+        return isinstance(age, int) and age >= 13
+
+    def _is_email_valid(self, email):
+        if not isinstance(email, str):
+            return False
+
         email_regex = r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$'
-        if re.match(email_regex, email):
-            return True
-        return False
+        return bool(re.match(email_regex, email))
 
     def add_saving_goal(self, goal_name):
         if self.status == "Standard" and len(self.saving_goals) >= 1:
