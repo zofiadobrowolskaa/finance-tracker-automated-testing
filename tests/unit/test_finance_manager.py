@@ -5,7 +5,7 @@ from src.transaction import Transaction
 
 class TestFinanceManager:
     @pytest.fixture
-    def manager():
+    def manager(self):
         user = User("Alice", "alice@example.com", 25)
         return FinanceManager(user)
 
