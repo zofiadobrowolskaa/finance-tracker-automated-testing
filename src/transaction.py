@@ -8,9 +8,7 @@ class Transaction:
         self.amount = self.is_amount_valid(amount)
         self.category = category
         self.date = date if date else datetime.date.today().strftime("%Y-%m-%d")
-        
-        # logic for automatic type assignment
-        self.type = "Income" if category in self.INCOME_CATEGORIES else "Expense"
+        self.type = self.assign_type(category)
         
         # external functionality placeholder (to be mocked later)
         from src.utils.id_generator import generate_transaction_id
@@ -20,3 +18,6 @@ class Transaction:
         if isinstance(amount, (int, float)) and amount > 0:
             return amount
         return "Invalid"
+
+    def assign_type(self, category):
+        return "Income" if category in self.INCOME_CATEGORIES else "Expense"
