@@ -15,13 +15,9 @@ class FinanceManager:
         return self.transactions
 
     def get_balance(self):
-        balance = 0.0
-        for transaction in self.transactions:
-            if transaction.type == "Income":
-                balance += transaction.amount
-            else:
-                balance -= transaction.amount
-        return balance
+        incomes = sum(t.amount for t in self.transactions if t.type == "Income")
+        expenses = sum(t.amount for t in self.transactions if t.type == "Expense")
+        return incomes - expenses
 
     def set_monthly_limit(self, limit):
         if isinstance(limit, (int, float)) and limit > 0:
@@ -34,10 +30,7 @@ class FinanceManager:
             return "No limit set"
         
         total_expenses = sum(t.amount for t in self.transactions if t.type == "Expense")
-        
-        if total_expenses > self.monthly_limit:
-            return "Limit exceeded"
-        return "Within limit"
+        return "Limit exceeded" if total_expenses > self.monthly_limit else "Within limit"
 
     def get_filtered_history(self, transaction_type):
         return [t for t in self.transactions if t.type == transaction_type]
