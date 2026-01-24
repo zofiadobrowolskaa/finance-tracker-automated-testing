@@ -47,3 +47,8 @@ class TestUser:
     def test_upgrade_to_premium(self, valid_user):
         valid_user.upgrade_to_premium()
         assert valid_user.status == "Premium"
+    
+    # testing email validation when input is not a string
+    def test_user_email_wrong_type(self):
+        user = User("Robot", 12345, 30)
+        assert user.email == "Invalid"
