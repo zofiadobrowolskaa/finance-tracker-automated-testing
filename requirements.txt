@@ -3,3 +3,5 @@ requests
 pytest
 pytest-cov
 behave
+flake8
+coverage
