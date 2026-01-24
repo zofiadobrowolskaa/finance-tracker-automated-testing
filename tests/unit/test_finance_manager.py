@@ -24,17 +24,23 @@ class TestFinanceManager:
         manager.add_transaction(Transaction(amount=200.0, category="Food"))
         assert manager.get_balance() == 800.0
 
+    # parametrization: test currency conversion for valid rates and error handling
+    @pytest.mark.parametrize("currency, mock_rate, expected_result", [
+        ("USD", 4.0, 25.0),
+        ("EUR", 2.0, 50.0),
+        ("GBP", None, None)
+    ])
     # getting balance in different currency (mocked exchange rate)
     @patch('src.utils.currency_service.CurrencyService.get_exchange_rate')
-    def test_get_balance_in_usd(self, mock_get_rate, manager):
+    def test_get_balance_in_currency_scenarios(self, mock_get_rate, manager, currency, mock_rate, expected_result):
         manager.add_transaction(Transaction(amount=100.0, category="Gift"))
+
+        mock_get_rate.return_value = mock_rate
         
-        mock_get_rate.return_value = 4.0
+        result = manager.get_balance_in_currency(currency)
+        assert result == expected_result
         
-        balance_usd = manager.get_balance_in_currency("USD")
-        
-        assert balance_usd == 25.0
-        mock_get_rate.assert_called_once_with("USD")
+        mock_get_rate.assert_called_with(currency)
 
     # parametrization: test various budget limit scenarios and expected status messages
     @pytest.mark.parametrize("limit, expense_amount, expected_status", [
@@ -47,11 +53,15 @@ class TestFinanceManager:
         manager.add_transaction(Transaction(amount=expense_amount, category="General"))
         assert manager.check_budget_status() == expected_status
 
-    # filtering history by type (Income/Expense)
-    def test_filter_history_by_type(self, manager):
+    # parametrization: ensure filtering works for both Incomes and Expenses
+    @pytest.mark.parametrize("filter_type, expected_count", [
+        ("Expense", 1),
+        ("Income", 1)
+    ])
+    def test_filter_history_scenarios(self, manager, filter_type, expected_count):
         manager.add_transaction(Transaction(amount=100.0, category="Food"))
         manager.add_transaction(Transaction(amount=500.0, category="Salary"))
         
-        expenses = manager.get_filtered_history("Expense")
-        assert all(t.type == "Expense" for t in expenses)
-        assert len(expenses) == 1
+        filtered = manager.get_filtered_history(filter_type)
+        assert len(filtered) == expected_count
+        assert all(t.type == filter_type for t in filtered)
