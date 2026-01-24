@@ -4,23 +4,32 @@ from src.utils.currency_service import CurrencyService
 
 class TestCurrencyService:
     
+    # parametrization: verify that logic works for different currencies and rates
+    @pytest.mark.parametrize("currency, mock_rate", [
+        ("USD", 4.0),
+        ("EUR", 4.5),
+        ("GBP", 5.2)
+    ])
+
     # successful exchange rate retrieval
     @patch('requests.get')
-    def test_get_exchange_rate_usd(self, mock_get):
+    def test_get_exchange_rate_usd(self, mock_get, currency, mock_rate):
         # prepare the mock - fake NBP response
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {
             "rates": [
-                {"mid": 4.0}  # we force the rate to be 4.0
+                {"mid": mock_rate}
             ]
         }
 
         service = CurrencyService()
-        rate = service.get_exchange_rate("USD")
+        rate = service.get_exchange_rate(currency)
 
-        assert rate == 4.0
-        
-        mock_get.assert_called_once_with("http://api.nbp.pl/api/exchangerates/rates/a/USD/?format=json")
+        assert rate == mock_rate
+
+        # verify correct URL construction for each currency
+        expected_url = f"http://api.nbp.pl/api/exchangerates/rates/a/{currency}/?format=json"
+        mock_get.assert_called_once_with(expected_url)
 
     # API connection error
     @patch('requests.get')
