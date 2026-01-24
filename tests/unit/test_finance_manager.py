@@ -1,4 +1,5 @@
 import pytest
+from unittest.mock import patch
 from src.finance_manager import FinanceManager
 from src.user import User
 from src.transaction import Transaction
@@ -22,6 +23,18 @@ class TestFinanceManager:
         manager.add_transaction(Transaction(amount=1000.0, category="Salary"))
         manager.add_transaction(Transaction(amount=200.0, category="Food"))
         assert manager.get_balance() == 800.0
+
+    # getting balance in different currency (mocked exchange rate)
+    @patch('src.utils.currency_service.CurrencyService.get_exchange_rate')
+    def test_get_balance_in_usd(self, mock_get_rate, manager):
+        manager.add_transaction(Transaction(amount=100.0, category="Gift"))
+        
+        mock_get_rate.return_value = 4.0
+        
+        balance_usd = manager.get_balance_in_currency("USD")
+        
+        assert balance_usd == 25.0
+        mock_get_rate.assert_called_once_with("USD")
 
     # parametrization: test various budget limit scenarios and expected status messages
     @pytest.mark.parametrize("limit, expense_amount, expected_status", [
