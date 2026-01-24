@@ -1,8 +1,12 @@
+from src.utils.currency_service import CurrencyService
+
 class FinanceManager:
     def __init__(self, user):
         self.user = user
         self.transactions = []
         self.monthly_limit = 0.0
+        # initialize external service dependency
+        self.currency_service = CurrencyService()
 
     def add_transaction(self, transaction):
         # add transactions that have a valid amount
@@ -18,6 +22,15 @@ class FinanceManager:
         incomes = sum(t.amount for t in self.transactions if t.type == "Income")
         expenses = sum(t.amount for t in self.transactions if t.type == "Expense")
         return incomes - expenses
+    
+    def get_balance_in_currency(self, currency_code):
+        current_balance = self.get_balance()
+        
+        rate = self.currency_service.get_exchange_rate(currency_code)
+        
+        if rate:
+            return round(current_balance / rate, 2)
+        return None
 
     def set_monthly_limit(self, limit):
         if isinstance(limit, (int, float)) and limit > 0:
