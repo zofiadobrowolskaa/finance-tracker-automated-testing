@@ -1,4 +1,5 @@
 import pytest
+import requests # <--- WAŻNE: Dodaj ten import
 from unittest.mock import patch
 from src.utils.currency_service import CurrencyService
 
@@ -10,10 +11,9 @@ class TestCurrencyService:
         ("EUR", 4.5),
         ("GBP", 5.2)
     ])
-
     # successful exchange rate retrieval
     @patch('requests.get')
-    def test_get_exchange_rate_usd(self, mock_get, currency, mock_rate):
+    def test_get_exchange_rate_success(self, mock_get, currency, mock_rate):
         # prepare the mock - fake NBP response
         mock_get.return_value.status_code = 200
         mock_get.return_value.json.return_value = {
@@ -31,9 +31,9 @@ class TestCurrencyService:
         expected_url = f"http://api.nbp.pl/api/exchangerates/rates/a/{currency}/?format=json"
         mock_get.assert_called_once_with(expected_url)
 
-    # API connection error
+    # API connection error (HTTP 404)
     @patch('requests.get')
-    def test_get_exchange_rate_connection_error(self, mock_get):
+    def test_get_exchange_rate_not_found(self, mock_get):
         mock_get.return_value.status_code = 404
         
         service = CurrencyService()
@@ -50,4 +50,16 @@ class TestCurrencyService:
         service = CurrencyService()
         rate = service.get_exchange_rate("GBP")
         
+        assert rate is None
+    
+    # network exception (simulating e.g. no internet connection)
+    @patch('requests.get')
+    def test_get_exchange_rate_network_exception(self, mock_get):
+        # side effect forces the mock to raise an exception instead of returning a value
+        mock_get.side_effect = requests.RequestException("Connection error")
+        
+        service = CurrencyService()
+        rate = service.get_exchange_rate("USD")
+        
+        # should return None because exception is caught in the try-except block
         assert rate is None
