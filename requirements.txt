@@ -4,4 +4,4 @@ pytest
 pytest-cov
 behave
 flake8
-coverage
+coverage==6.5.0

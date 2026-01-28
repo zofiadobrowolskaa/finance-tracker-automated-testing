@@ -1,4 +1,4 @@
-name: API tests
+name: BDD Tests
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  bdd-tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -24,6 +24,6 @@ jobs:
         export FLASK_APP=src/app/api.py
         export PYTHONPATH=$GITHUB_WORKSPACE
         flask run &
-    - name: Execute API tests
+    - name: Execute BDD tests
       run: |
-        python3 -m pytest tests/api
+        behave
