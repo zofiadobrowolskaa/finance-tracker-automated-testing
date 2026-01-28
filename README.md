@@ -87,7 +87,7 @@ python -m pytest tests/unit
 ```
 
 **API Tests (Integration Tests)**
-- Test HTTP endpoint functionality using the Flask - Test Client (in-memory).
+- Test HTTP endpoint functionality using `requests` (Black Box testing).
 
 ```bash
 python -m pytest tests/api
@@ -127,5 +127,7 @@ The report will be generated in the htmlcov/index.html directory.
 2. API tests: Runs integration tests for endpoints.
 
 3. API Performance: Runs performance tests.
+
+4. BDD Tests: Runs behavioral scenarios using Behave against the running application.
 
 The execution status of tests is visible in the "Actions" tab on GitHub.
