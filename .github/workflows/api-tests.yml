@@ -24,6 +24,7 @@ jobs:
         export FLASK_APP=src/app/api.py
         export PYTHONPATH=$GITHUB_WORKSPACE
         flask run &
+        sleep 5
     - name: Execute API tests
       run: |
         python3 -m pytest tests/api
