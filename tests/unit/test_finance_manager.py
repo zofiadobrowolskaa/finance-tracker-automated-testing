@@ -65,3 +65,11 @@ class TestFinanceManager:
         filtered = manager.get_filtered_history(filter_type)
         assert len(filtered) == expected_count
         assert all(t.type == filter_type for t in filtered)
+    
+    def test_add_invalid_transaction(self, manager):
+        invalid_transaction = Transaction(amount=-50, category="Food")
+        
+        result = manager.add_transaction(invalid_transaction)
+        
+        assert result is False
+        assert len(manager.get_history()) == 0
